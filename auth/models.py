@@ -41,6 +41,7 @@ def session_scope():
         raise
     finally:
         session.expunge_all()
+        session.close()
 
 
 def object_as_dict(obj):
