@@ -8,8 +8,9 @@ import requests
 
 from flask_oauthlib.client import OAuth, OAuthException
 
-from .permissions import get_token
+from .extensions import on_new_user, on_user_login, on_user_logout
 from .models import get_user, create_or_get_user, save_user, get_user_by_username
+from .permissions import get_token
 
 
 oauth = OAuth()
@@ -149,6 +150,8 @@ def _get_token_from_profile(provider, profile, private_key):
     email = norm_profile['email']
     avatar_url = norm_profile['avatar_url']
     user = create_or_get_user(userid, name, username, email, avatar_url)
+    if user.get('new'):
+        on_new_user(user)
     logging.info('Got USER %r', user)
     token = {
         'userid': user['id'],
@@ -190,7 +193,7 @@ def _normilize_profile(provider, profile):
 
 def oauth_callback(state, callback_url, private_key,
                    set_session=lambda k, v: None):
-    """Callback from google
+    """Callback from OAuth
     """
     try:
         state = jwt.decode(state, private_key)

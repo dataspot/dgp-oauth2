@@ -27,3 +27,8 @@ allowed_services = dict(
         allowed_services
     )
 )
+
+# installed extentsions
+installed_extensions = os.environ.get('INSTALLED_EXTENSIONS', '').split(';')
+if '' in installed_extensions:
+    installed_extensions.remove('')

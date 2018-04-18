@@ -100,5 +100,6 @@ def create_or_get_user(provider_id, name, username, email, avatar_url):
             'join_date': datetime.datetime.now()
         }
         save_user(document)
+        document['new'] = True
         return document
     return user

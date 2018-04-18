@@ -19,16 +19,22 @@ A generic OAuth2 authentication service and user permission manager.
 `python server.py`
 
 ## Env Vars
-- `PRIVATE_KEY` & `PUBLIC_KEY` an RSA key-pair in PEM format. 
+- `PRIVATE_KEY` & `PUBLIC_KEY` an RSA key-pair in PEM format.
   See `tools/generate_key_pair.sh` for more info.
 - `GOOGLE_KEY` & `GOOGLE_SECRET`: OAuth credentials for authenticating with Google
 - `GITHUB_KEY` & `GITHUB_SECRET`: OAuth credentials for authenticating with Github
-- `DATABASE_URL`: A SQLAlchemy compatible database connection string (where user data is stored) 
+- `DATABASE_URL`: A SQLAlchemy compatible database connection string (where user data is stored)
 - `EXTERNAL_ADDRESS`: The hostname where this service is located on
-- `ALLOWED_SERVICES`: 
+- `ALLOWED_SERVICES`:
     Which permissions providers are available. A `;` delimited list of provider identifiers.
-    Each provider identifier takes the form of `[alias:]provider`, where `provider` is the name of a Python module 
+    Each provider identifier takes the form of `[alias:]provider`, where `provider` is the name of a Python module
     which exports a `get_permissions(service, userid)` function.
+- `INSTALLED_EXTENSIONS`:
+    List of installed extensions. A `;` delimited list of `extension` - the name of a Python modules which exports one or all of these functions
+    - `on_new_user(user_info)`
+    - `on_user_login(user_info)`
+    - `on_user_logout(user_info)`
+
 
 ## API
 
