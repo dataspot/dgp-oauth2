@@ -2,6 +2,7 @@ import os
 import json
 import datetime
 from hashlib import md5
+import logging
 
 from contextlib import contextmanager
 
@@ -89,6 +90,7 @@ def save_user(user):
 def create_or_get_user(provider_id, name, username, email, avatar_url):
     id_ = hash_email(email)
     user = get_user(id_)
+    logging.info('Got USER(models) %s', user)
     if user is None:
         document = {
             'id': id_,
@@ -101,5 +103,6 @@ def create_or_get_user(provider_id, name, username, email, avatar_url):
         }
         save_user(document)
         document['new'] = True
+        logging.info('Got new USER(models) %s', user)
         return document
     return user
