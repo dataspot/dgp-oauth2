@@ -9,7 +9,7 @@ import requests
 from flask_oauthlib.client import OAuth, OAuthException
 
 from .extensions import on_new_user, on_user_login, on_user_logout
-from .models import get_user, create_or_get_user, save_user, get_user_by_username
+from .models import get_user, create_or_get_user, save_user, get_user_by_username, hash_email
 from .permissions import get_token
 
 
@@ -314,6 +314,8 @@ def get_profile_by_username(username):
         ret['profile'] = {
             'id': user['id'],
             'name': user['name'],
-            'join_date': user['join_date']
+            'join_date': user['join_date'],
+            'avatar_url': user['avatar_url'],
+            'gravatar': hash_email(user['email'])
         }
     return ret
