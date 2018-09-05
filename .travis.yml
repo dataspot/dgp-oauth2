@@ -19,15 +19,7 @@ before_deploy:
 
 deploy:
   skip_cleanup: true
-  - provider: script
-    script: bash .travis.sh trigger datahub-auth
-    on:
-      branch: master
-  - provider: script
-    script: bash .travis.sh trigger specstore
-    on:
-      branch: master
-  - provider: script
-    script: bash .travis.sh trigger bitstore
-    on:
-      branch: master
+  provider: script
+  script: bash .travis.sh trigger datahub-auth & bash .travis.sh trigger specstore & bash .travis.sh trigger bitstore
+  on:
+    branch: master
