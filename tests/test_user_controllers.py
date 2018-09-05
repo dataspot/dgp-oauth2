@@ -448,16 +448,20 @@ class GetUserProfileByUsernameTest(unittest.TestCase):
             'id': 'abc123',
             'email': 'test@test.com',
             'join_date': 'Mon, 24 Jul 2017 12:17:50 GMT',
-            'name': 'Test Test'
+            'name': 'Test Test',
+            'avatar_url': 'https://avatar.com'
         }
         self.ctrl.get_user_by_username = Mock(
             return_value=return_value
         )
+
         username = 'existing_user'
         ret = self.ctrl.get_profile_by_username(username)
         self.assertEquals(ret['profile']['id'], return_value['id'])
         self.assertEquals(ret['profile']['name'], return_value['name'])
         self.assertEquals(ret['profile']['join_date'], return_value['join_date'])
+        self.assertEquals(ret['profile']['avatar_url'], return_value['avatar_url'])
+        self.assertEquals(ret['profile']['gravatar'], models.hash_email(return_value['email']))
         self.assertEquals(ret['found'], True)
 
     def test___get_profile_by_username___nonexisting_user(self):
