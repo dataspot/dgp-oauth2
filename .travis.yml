@@ -18,7 +18,6 @@ before_deploy:
   - curl -s https://raw.githubusercontent.com/datahq/deploy/master/apps_travis_script.sh > .travis.sh
 
 deploy:
-  skip_cleanup: true
   - provider: script
     script: bash .travis.sh trigger datahub-auth
     on:
