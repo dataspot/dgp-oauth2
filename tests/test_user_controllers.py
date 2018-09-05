@@ -17,13 +17,13 @@ models = import_module('auth.models')
 credentials = import_module('auth.credentials')
 models.setup_engine('sqlite://')
 
-class UserAdminTest(object):
+class UserAdminTest(unittest.TestCase):
 
     USERID = 'uusseerriidd'
     NAME = 'nnaammee'
     EMAIL = 'eemmaaiill'
     AVATAR_URL = 'aavvaattaarr__uurrll'
-    USERNAME = 'usernaaaame'
+    USERNAME = 'Usernaaaame'
 
     # Actions
 
@@ -34,15 +34,18 @@ class UserAdminTest(object):
 
     def test___create_user___success(self):
         user = models.create_or_get_user(self.USERID, self.NAME, self.USERNAME, self.EMAIL, self.AVATAR_URL)
-        self.assertEquals(user['id'], self.USERID)
+        hash_of_email = md5(self.EMAIL.encode('utf8')).hexdigest()
+        self.assertEquals(user['id'], hash_of_email)
         self.assertEquals(user['name'], self.NAME)
         self.assertEquals(user['email'], self.EMAIL)
         self.assertEquals(user['avatar_url'], self.AVATAR_URL)
+        self.assertEquals(user['username'], self.USERNAME.lower())
 
     def test___create__existing_user___success(self):
         models.create_or_get_user(self.USERID, self.NAME, self.USERNAME, self.EMAIL, self.AVATAR_URL)
         user = models.create_or_get_user(self.USERID, self.NAME, self.USERNAME, self.EMAIL, self.AVATAR_URL)
-        self.assertEquals(user['id'], self.USERID)
+        hash_of_email = md5(self.EMAIL.encode('utf8')).hexdigest()
+        self.assertEquals(user['id'], hash_of_email)
         self.assertEquals(user['name'], self.NAME)
         self.assertEquals(user['email'], self.EMAIL)
         self.assertEquals(user['avatar_url'], self.AVATAR_URL)
@@ -51,34 +54,24 @@ class UserAdminTest(object):
         models.create_or_get_user(self.USERID, self.NAME, self.USERNAME, self.EMAIL, self.AVATAR_URL)
         hash = models.hash_email(self.EMAIL)
         user = models.get_user(hash)
-        self.assertEquals(user['id'], self.USERID)
+        hash_of_email = md5(self.EMAIL.encode('utf8')).hexdigest()
+        self.assertEquals(user['id'], hash_of_email)
         self.assertEquals(user['name'], self.NAME)
         self.assertEquals(user['email'], self.EMAIL)
         self.assertEquals(user['avatar_url'], self.AVATAR_URL)
 
     def test___get__nonexisting_user___success(self):
-        hash = models.hash_email(self.EMAIL)
+        hash = models.hash_email('random@mail.com')
         user = models.get_user(hash)
         self.assertIs(user, None)
 
-    def test___save__existing_user___success(self):
-        user2 = models.create_or_get_user(self.USERID, self.NAME, self.USERNAME, self.EMAIL, self.AVATAR_URL)
-        user2['email'] += 'X'
-        models. save_user(user2)
-        hash = models.hash_email(self.EMAIL)
-        user = models.get_user(hash)
-        self.assertEquals(user['id'], self.USERID)
-        self.assertEquals(user['name'], self.NAME)
-        self.assertEquals(user['email'], self.EMAIL+'X')
-        self.assertEquals(user['avatar_url'], self.AVATAR_URL)
-
     def test___update___no_jwt(self):
-        ret = self.ctrl.update(None, 'new_username')
+        ret = self.ctrl.update(None, 'new_username', self.private_key)
         self.assertFalse(ret.get('success'))
         self.assertEquals(ret.get('error'), 'No token')
 
     def test___update___bad_jwt(self):
-        ret = self.ctrl.update('bla', 'new_username')
+        ret = self.ctrl.update('bla', 'new_username', self.private_key)
         self.assertFalse(ret.get('success'))
         self.assertEquals(ret.get('error'), 'Not authenticated')
 
@@ -90,7 +83,7 @@ class UserAdminTest(object):
                     datetime.timedelta(days=14))
         }
         client_token = jwt.encode(token, self.private_key)
-        ret = self.ctrl.update(client_token, 'new_username')
+        ret = self.ctrl.update(client_token, 'new_username', self.private_key)
         self.assertFalse(ret.get('success'))
         self.assertEquals(ret.get('error'), 'Unknown User')
 
@@ -103,30 +96,15 @@ class UserAdminTest(object):
                     datetime.timedelta(days=14))
         }
         client_token = jwt.encode(token, self.private_key)
-        ret = self.ctrl.update(client_token, 'new_username')
-        self.assertTrue(ret.get('success'))
-        self.assertEquals(ret.get('error'), None)
-        user = models.get_user(hash)
-        self.assertEquals(user['username'], 'new_username')
-
-
-    def test___update___double_update(self):
-        models.create_or_get_user(self.USERID, self.NAME, self.USERNAME, self.EMAIL, self.AVATAR_URL)
-        hash = models.hash_email(self.EMAIL)
-        token = {
-            'userid': hash,
-            'exp': (datetime.datetime.utcnow() +
-                    datetime.timedelta(days=14))
-        }
-        client_token = jwt.encode(token, self.private_key)
-        ret = self.ctrl.update(client_token, 'new_username')
-        self.assertTrue(ret.get('success'))
-        self.assertEquals(ret.get('error'), None)
-        ret = self.ctrl.update(client_token, 'new_username_@')
+        ret = self.ctrl.update(client_token, 'new_username', self.private_key)
         self.assertFalse(ret.get('success'))
         self.assertEquals(ret.get('error'), 'Cannot modify username, already set')
-        user = models.get_user(hash)
-        self.assertEquals(user['username'], 'new_username')
+
+    def test___get__user_by_username___success(self):
+        models.create_or_get_user(self.USERID, self.NAME, self.USERNAME, self.EMAIL, self.AVATAR_URL)
+        # Get user by uppercased username
+        ret = models.get_user_by_username(self.USERNAME.upper())
+        self.assertEquals(ret.get('username'), self.USERNAME.lower())
 
 
 class AuthenticationTest(unittest.TestCase):

@@ -9,7 +9,7 @@ from sqlalchemy import DateTime
 from sqlalchemy import inspect
 from sqlalchemy.ext.declarative import declarative_base
 
-from sqlalchemy import Column, Unicode, String, create_engine
+from sqlalchemy import Column, Unicode, String, create_engine, func
 from sqlalchemy.orm import sessionmaker
 
 # ## SQL DB
@@ -71,7 +71,7 @@ def get_user(id_):
 
 def get_user_by_username(username_):
     with session_scope() as session:
-        ret = session.query(User).filter_by(username=username_).first()
+        ret = session.query(User).filter(func.lower(User.username) == func.lower(username_)).first()
         if ret is not None:
             return object_as_dict(ret)
     return None
@@ -93,7 +93,7 @@ def create_or_get_user(provider_id, name, username, email, avatar_url):
         document = {
             'id': id_,
             'provider_id': provider_id,
-            'username': username,
+            'username': username.lower(),
             'name': name,
             'email': email,
             'avatar_url': avatar_url,
