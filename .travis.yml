@@ -4,10 +4,6 @@ language:
 python:
   - 3.6
 
-env:
-  global:
-    - TRIGGER_REPO=datahub-auth
-
 install:
   - ./tools/generate_key_pair.sh
   - make install
@@ -22,6 +18,9 @@ after_success:
 deploy:
   skip_cleanup: true
   provider: script
-  script: bash .travis.sh trigger
+  script:
+    - bash .travis.sh trigger datahub-auth
+    - bash .travis.sh trigger specstore
+    - bash .travis.sh trigger bitstore
   on:
     branch: master
