@@ -20,6 +20,6 @@ before_deploy:
 deploy:
   skip_cleanup: true
   provider: script
-  script: bash exec_travis.sh
+  script: bash .trigger_deploy.sh
   on:
     branch: master
