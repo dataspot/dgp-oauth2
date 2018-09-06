@@ -4,6 +4,9 @@ language:
 python:
   - 3.6
 
+services:
+  - docker
+
 install:
   - ./tools/generate_key_pair.sh
   - make install
