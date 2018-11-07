@@ -75,14 +75,18 @@ def _get_user_profile(provider, access_token):
         return None
 
     response = response.json()
-    # Make sure we have private Emails from github
-    if provider == 'github' and response['email'] is None:
+    # Make sure we have private Emails from github.
+    # Also make sure we don't have user registered with other email than primary
+    if provider == 'github':
         emails_resp = requests.get(remote_app['get_profile'] + '/emails', headers=headers)
         for email in emails_resp.json():
-            if email.get('primary'):
+            id_ = hash_email(email['email'])
+            user = get_user(id_)
+            if user is not None:
                 response['email'] = email['email']
                 break
-
+            if email.get('primary'):
+                response['email'] = email['email']
     return response
 
 

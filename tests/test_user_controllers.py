@@ -307,7 +307,15 @@ class GetUserProfileTest(unittest.TestCase):
 
     def test___check___git_works_fine_with_public_email(self):
         with requests_mock.Mocker() as mock:
+            emails_resp = '''
+            [{
+                "email": "email@moshe.com",
+                "primary": true,
+                "verified": true
+             }]
+            '''
             mock.get('https://api.github.com/user', text=self.mocked_resp)
+            mock.get('https://api.github.com/user/emails', text=emails_resp)
             res = self.ctrl._get_user_profile('github', 'access_token')
             self.assertEquals(res['email'], 'email@moshe.com')
             self.assertEquals(res['name'], 'Moshe')
@@ -331,6 +339,35 @@ class GetUserProfileTest(unittest.TestCase):
             mock.get('https://api.github.com/user/emails', text=emails_resp)
             res = self.ctrl._get_user_profile('github', 'access_token')
             self.assertEquals(res['email'], 'email@moshe.com')
+            self.assertEquals(res['name'], 'Moshe')
+
+
+    def test___check___git_works_fine_if_multiple_emails_and_one_exists(self):
+        self.mocked_resp = '''
+        {
+            "name": "Moshe",
+            "email": null
+        }
+        '''
+        emails_resp = '''
+        [{
+            "email": "email@newuser.com",
+            "primary": false,
+            "verified": true
+         },
+         {
+             "email": "email@another.com",
+             "primary": true,
+             "verified": true
+          }
+        ]
+        '''
+        with requests_mock.Mocker() as mock:
+            models.create_or_get_user('gtihib', '', '', 'email@newuser.com', '')
+            mock.get('https://api.github.com/user', text=self.mocked_resp)
+            mock.get('https://api.github.com/user/emails', text=emails_resp)
+            res = self.ctrl._get_user_profile('github', 'access_token')
+            self.assertEquals(res['email'], 'email@newuser.com')
             self.assertEquals(res['name'], 'Moshe')
 
 
