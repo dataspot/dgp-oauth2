@@ -35,7 +35,10 @@ def make_blueprint(external_address):
     get_profile_by_username_controller = get_profile_by_username
 
     def callback_url():
-        return 'https://'+external_address+url_for('auth.oauth_callback')
+        if external_address.startswith('http'):
+            return external_address+url_for('auth.oauth_callback')
+        else:
+            return 'https://'+external_address+url_for('auth.oauth_callback')
 
     def authorize_():
         token = request.headers.get('auth-token') or request.values.get('jwt')
