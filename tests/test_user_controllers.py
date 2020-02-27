@@ -53,6 +53,15 @@ class UserAdminTest(unittest.TestCase):
         self.assertEquals(user['avatar_url'], self.AVATAR_URL+'2')
         self.assertEquals(user['username'], self.USERNAME.lower()+'2')
 
+    def test___delete_user___success(self):
+        models.create_or_get_user(self.USERID, self.NAME, self.USERNAME, self.EMAIL, self.AVATAR_URL)
+        hash_of_email = md5(self.EMAIL.encode('utf8')).hexdigest()
+        user = models.get_user(hash_of_email)
+        self.assertEquals(user['email'], self.EMAIL)
+        models.delete_user(hash_of_email)
+        user = models.get_user(hash_of_email)
+        self.assertIsNone(user)
+        
     def test___create__existing_user___success(self):
         models.create_or_get_user(self.USERID, self.NAME, self.USERNAME, self.EMAIL, self.AVATAR_URL)
         user = models.create_or_get_user(self.USERID, self.NAME, self.USERNAME, self.EMAIL, self.AVATAR_URL)

@@ -69,6 +69,14 @@ def get_user(id_):
             return object_as_dict(ret)
     return None
 
+def delete_user(id_):
+    with session_scope() as session:
+        ret = session.query(User).filter_by(id=id_).first()
+        if ret is not None:
+            session.delete(ret)
+            return True
+    return False
+
 def get_users():
     with session_scope() as session:
         ret = session.query(User)
