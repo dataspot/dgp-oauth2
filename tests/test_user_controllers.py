@@ -106,6 +106,12 @@ class UserAdminTest(unittest.TestCase):
         ret = models.get_user_by_username(self.USERNAME.upper())
         self.assertEquals(ret.get('username'), self.USERNAME.lower())
 
+    def test___get__users___success(self):
+        models.create_or_get_user(self.USERID, self.NAME, self.USERNAME, self.EMAIL, self.AVATAR_URL)
+        # Get user by uppercased username
+        ret = models.get_users()
+        self.assertEquals(ret[0].get('username'), self.USERNAME.lower())
+
 
 class AuthenticationTest(unittest.TestCase):
 

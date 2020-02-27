@@ -69,6 +69,12 @@ def get_user(id_):
             return object_as_dict(ret)
     return None
 
+def get_users():
+    with session_scope() as session:
+        ret = session.query(User)
+        return [object_as_dict(item) for item in ret]
+    return None
+
 def get_user_by_username(username_):
     with session_scope() as session:
         ret = session.query(User).filter(func.lower(User.username) == func.lower(username_)).first()
