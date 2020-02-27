@@ -94,18 +94,29 @@ def save_user(user):
 
 def create_or_get_user(provider_id, name, username, email, avatar_url):
     id_ = hash_email(email)
-    user = get_user(id_)
-    if user is None:
-        document = {
-            'id': id_,
-            'provider_id': provider_id,
-            'username': username.lower(),
-            'name': name,
-            'email': email,
-            'avatar_url': avatar_url,
-            'join_date': datetime.datetime.now()
-        }
-        save_user(document)
-        document['new'] = True
-        return document
-    return user
+    with session_scope() as session:
+        user = session.query(User).filter_by(id=id_).first()
+        if user is None:
+            params = {
+                'id': id_,
+                'provider_id': provider_id,
+                'username': username.lower(),
+                'name': name,
+                'email': email,
+                'avatar_url': avatar_url,
+                'join_date': datetime.datetime.now()
+            }
+            user = User(**params)
+            session.add(user)
+            params['new'] = True
+            return params
+        else:
+            params = {
+                'provider_id': provider_id,
+                'username': username.lower(),
+                'name': name,
+                'avatar_url': avatar_url,
+            }
+            for k, v in params.items():
+                setattr(user, k, v)
+            return object_as_dict(user)

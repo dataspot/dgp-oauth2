@@ -52,6 +52,7 @@ setup(
     extras_require={'develop': TESTS_REQUIRE},
     zip_safe=False,
     long_description=README,
+    long_description_content_type='text/markdown',
     description='{{ DESCRIPTION }}',
     author='Adam Kariv, Open Knowledge (International), Datopian',
     url='https://github.com/datahq/auth',

@@ -41,6 +41,18 @@ class UserAdminTest(unittest.TestCase):
         self.assertEquals(user['avatar_url'], self.AVATAR_URL)
         self.assertEquals(user['username'], self.USERNAME.lower())
 
+    def test___update_user___success(self):
+        models.create_or_get_user(self.USERID, self.NAME, self.USERNAME, self.EMAIL, self.AVATAR_URL)
+        models.create_or_get_user(self.USERID+'2', self.NAME+'2', self.USERNAME+'2', self.EMAIL, self.AVATAR_URL+'2')
+        hash_of_email = md5(self.EMAIL.encode('utf8')).hexdigest()
+        user = models.get_user(hash_of_email)
+        self.assertEquals(user['id'], hash_of_email)
+        self.assertEquals(user['provider_id'], self.USERID+'2')
+        self.assertEquals(user['name'], self.NAME+'2')
+        self.assertEquals(user['email'], self.EMAIL)
+        self.assertEquals(user['avatar_url'], self.AVATAR_URL+'2')
+        self.assertEquals(user['username'], self.USERNAME.lower()+'2')
+
     def test___create__existing_user___success(self):
         models.create_or_get_user(self.USERID, self.NAME, self.USERNAME, self.EMAIL, self.AVATAR_URL)
         user = models.create_or_get_user(self.USERID, self.NAME, self.USERNAME, self.EMAIL, self.AVATAR_URL)
