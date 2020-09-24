@@ -18,12 +18,11 @@ after_success:
   - coveralls
 
 before_deploy:
-  - curl -s https://raw.githubusercontent.com/datahq/deploy/master/apps_travis_script.sh > .travis.sh
   - bash .travis.sh script
 
 deploy:
   skip_cleanup: true
   provider: script
-  script: bash .trigger_deploy.sh
+  script: bash .travis.sh push_to_docker
   on:
     branch: master

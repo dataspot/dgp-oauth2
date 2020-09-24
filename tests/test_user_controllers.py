@@ -13,8 +13,8 @@ except ImportError:
     from mock import Mock, patch
 from importlib import import_module, reload
 
-models = import_module('auth.models')
-credentials = import_module('auth.credentials')
+models = import_module('dgp_oauth2.models')
+credentials = import_module('dgp_oauth2.credentials')
 models.setup_engine('sqlite://')
 
 class UserAdminTest(unittest.TestCase):
@@ -28,36 +28,36 @@ class UserAdminTest(unittest.TestCase):
     # Actions
 
     def setUp(self):
-        self.ctrl = import_module('auth.controllers')
+        self.ctrl = import_module('dgp_oauth2.controllers')
         self.private_key = credentials.private_key
         reload(self.ctrl)
 
     def test___create_user___success(self):
         user = models.create_or_get_user(self.USERID, self.NAME, self.USERNAME, self.EMAIL, self.AVATAR_URL)
         hash_of_email = md5(self.EMAIL.encode('utf8')).hexdigest()
-        self.assertEquals(user['id'], hash_of_email)
-        self.assertEquals(user['name'], self.NAME)
-        self.assertEquals(user['email'], self.EMAIL)
-        self.assertEquals(user['avatar_url'], self.AVATAR_URL)
-        self.assertEquals(user['username'], self.USERNAME.lower())
+        self.assertEqual(user['id'], hash_of_email)
+        self.assertEqual(user['name'], self.NAME)
+        self.assertEqual(user['email'], self.EMAIL)
+        self.assertEqual(user['avatar_url'], self.AVATAR_URL)
+        self.assertEqual(user['username'], self.USERNAME.lower())
 
     def test___update_user___success(self):
         models.create_or_get_user(self.USERID, self.NAME, self.USERNAME, self.EMAIL, self.AVATAR_URL)
         models.create_or_get_user(self.USERID+'2', self.NAME+'2', self.USERNAME+'2', self.EMAIL, self.AVATAR_URL+'2')
         hash_of_email = md5(self.EMAIL.encode('utf8')).hexdigest()
         user = models.get_user(hash_of_email)
-        self.assertEquals(user['id'], hash_of_email)
-        self.assertEquals(user['provider_id'], self.USERID+'2')
-        self.assertEquals(user['name'], self.NAME+'2')
-        self.assertEquals(user['email'], self.EMAIL)
-        self.assertEquals(user['avatar_url'], self.AVATAR_URL+'2')
-        self.assertEquals(user['username'], self.USERNAME.lower()+'2')
+        self.assertEqual(user['id'], hash_of_email)
+        self.assertEqual(user['provider_id'], self.USERID+'2')
+        self.assertEqual(user['name'], self.NAME+'2')
+        self.assertEqual(user['email'], self.EMAIL)
+        self.assertEqual(user['avatar_url'], self.AVATAR_URL+'2')
+        self.assertEqual(user['username'], self.USERNAME.lower()+'2')
 
     def test___delete_user___success(self):
         models.create_or_get_user(self.USERID, self.NAME, self.USERNAME, self.EMAIL, self.AVATAR_URL)
         hash_of_email = md5(self.EMAIL.encode('utf8')).hexdigest()
         user = models.get_user(hash_of_email)
-        self.assertEquals(user['email'], self.EMAIL)
+        self.assertEqual(user['email'], self.EMAIL)
         models.delete_user(hash_of_email)
         user = models.get_user(hash_of_email)
         self.assertIsNone(user)
@@ -66,20 +66,20 @@ class UserAdminTest(unittest.TestCase):
         models.create_or_get_user(self.USERID, self.NAME, self.USERNAME, self.EMAIL, self.AVATAR_URL)
         user = models.create_or_get_user(self.USERID, self.NAME, self.USERNAME, self.EMAIL, self.AVATAR_URL)
         hash_of_email = md5(self.EMAIL.encode('utf8')).hexdigest()
-        self.assertEquals(user['id'], hash_of_email)
-        self.assertEquals(user['name'], self.NAME)
-        self.assertEquals(user['email'], self.EMAIL)
-        self.assertEquals(user['avatar_url'], self.AVATAR_URL)
+        self.assertEqual(user['id'], hash_of_email)
+        self.assertEqual(user['name'], self.NAME)
+        self.assertEqual(user['email'], self.EMAIL)
+        self.assertEqual(user['avatar_url'], self.AVATAR_URL)
 
     def test___get__existing_user___success(self):
         models.create_or_get_user(self.USERID, self.NAME, self.USERNAME, self.EMAIL, self.AVATAR_URL)
         hash = models.hash_email(self.EMAIL)
         user = models.get_user(hash)
         hash_of_email = md5(self.EMAIL.encode('utf8')).hexdigest()
-        self.assertEquals(user['id'], hash_of_email)
-        self.assertEquals(user['name'], self.NAME)
-        self.assertEquals(user['email'], self.EMAIL)
-        self.assertEquals(user['avatar_url'], self.AVATAR_URL)
+        self.assertEqual(user['id'], hash_of_email)
+        self.assertEqual(user['name'], self.NAME)
+        self.assertEqual(user['email'], self.EMAIL)
+        self.assertEqual(user['avatar_url'], self.AVATAR_URL)
 
     def test___get__nonexisting_user___success(self):
         hash = models.hash_email('random@mail.com')
@@ -89,12 +89,12 @@ class UserAdminTest(unittest.TestCase):
     def test___update___no_jwt(self):
         ret = self.ctrl.update(None, 'new_username', self.private_key)
         self.assertFalse(ret.get('success'))
-        self.assertEquals(ret.get('error'), 'No token')
+        self.assertEqual(ret.get('error'), 'No token')
 
     def test___update___bad_jwt(self):
         ret = self.ctrl.update('bla', 'new_username', self.private_key)
         self.assertFalse(ret.get('success'))
-        self.assertEquals(ret.get('error'), 'Not authenticated')
+        self.assertEqual(ret.get('error'), 'Not authenticated')
 
     def test___update___no_such_user(self):
         hash = models.hash_email(self.EMAIL+'X')
@@ -106,7 +106,7 @@ class UserAdminTest(unittest.TestCase):
         client_token = jwt.encode(token, self.private_key)
         ret = self.ctrl.update(client_token, 'new_username', self.private_key)
         self.assertFalse(ret.get('success'))
-        self.assertEquals(ret.get('error'), 'Unknown User')
+        self.assertEqual(ret.get('error'), 'Unknown User')
 
     def test___update___new_user(self):
         models.create_or_get_user(self.USERID, self.NAME, self.USERNAME, self.EMAIL, self.AVATAR_URL)
@@ -119,19 +119,19 @@ class UserAdminTest(unittest.TestCase):
         client_token = jwt.encode(token, self.private_key)
         ret = self.ctrl.update(client_token, 'new_username', self.private_key)
         self.assertFalse(ret.get('success'))
-        self.assertEquals(ret.get('error'), 'Cannot modify username, already set')
+        self.assertEqual(ret.get('error'), 'Cannot modify username, already set')
 
     def test___get__user_by_username___success(self):
         models.create_or_get_user(self.USERID, self.NAME, self.USERNAME, self.EMAIL, self.AVATAR_URL)
         # Get user by uppercased username
         ret = models.get_user_by_username(self.USERNAME.upper())
-        self.assertEquals(ret.get('username'), self.USERNAME.lower())
+        self.assertEqual(ret.get('username'), self.USERNAME.lower())
 
     def test___get__users___success(self):
         models.create_or_get_user(self.USERID, self.NAME, self.USERNAME, self.EMAIL, self.AVATAR_URL)
         # Get user by uppercased username
         ret = models.get_users()
-        self.assertEquals(ret[0].get('username'), self.USERNAME.lower())
+        self.assertEqual(ret[0].get('username'), self.USERNAME.lower())
 
 
 class AuthenticationTest(unittest.TestCase):
@@ -143,7 +143,7 @@ class AuthenticationTest(unittest.TestCase):
 
     def setUp(self):
 
-        self.ctrl = import_module('auth.controllers')
+        self.ctrl = import_module('dgp_oauth2.controllers')
         self.private_key = credentials.private_key
         reload(self.ctrl)
 
@@ -227,9 +227,9 @@ class AuthenticationTest(unittest.TestCase):
         ret = self.ctrl.authenticate(client_token, 'next', 'callback', self.private_key)
         self.assertTrue(ret.get('authenticated'))
         self.assertIsNotNone(ret.get('profile'))
-        self.assertEquals(ret['profile'].email,'email@moshe.com')
-        self.assertEquals(ret['profile'].avatar_url,'http://google.com')
-        self.assertEquals(ret['profile'].name,'moshe')
+        self.assertEqual(ret['profile'].email,'email@moshe.com')
+        self.assertEqual(ret['profile'].avatar_url,'http://google.com')
+        self.assertEqual(ret['profile'].name,'moshe')
 
     def test___callback___good_response(self):
         token = {
@@ -276,7 +276,7 @@ class GetUserProfileTest(unittest.TestCase):
 
     def setUp(self):
 
-        self.ctrl = import_module('auth.controllers')
+        self.ctrl = import_module('dgp_oauth2.controllers')
         self.private_key = credentials.private_key
         reload(self.ctrl)
 
@@ -328,8 +328,8 @@ class GetUserProfileTest(unittest.TestCase):
             mock.get('https://www.googleapis.com/oauth2/v1/userinfo',
                     text=self.mocked_resp)
             res = self.ctrl._get_user_profile('google', 'access_token')
-            self.assertEquals(res['email'], 'email@moshe.com')
-            self.assertEquals(res['name'], 'Moshe')
+            self.assertEqual(res['email'], 'email@moshe.com')
+            self.assertEqual(res['name'], 'Moshe')
 
 
     def test___check___git_works_fine_with_public_email(self):
@@ -344,8 +344,8 @@ class GetUserProfileTest(unittest.TestCase):
             mock.get('https://api.github.com/user', text=self.mocked_resp)
             mock.get('https://api.github.com/user/emails', text=emails_resp)
             res = self.ctrl._get_user_profile('github', 'access_token')
-            self.assertEquals(res['email'], 'email@moshe.com')
-            self.assertEquals(res['name'], 'Moshe')
+            self.assertEqual(res['email'], 'email@moshe.com')
+            self.assertEqual(res['name'], 'Moshe')
 
     def test___check___git_works_fine_with_private_email(self):
         self.mocked_resp = '''
@@ -365,8 +365,8 @@ class GetUserProfileTest(unittest.TestCase):
             mock.get('https://api.github.com/user', text=self.mocked_resp)
             mock.get('https://api.github.com/user/emails', text=emails_resp)
             res = self.ctrl._get_user_profile('github', 'access_token')
-            self.assertEquals(res['email'], 'email@moshe.com')
-            self.assertEquals(res['name'], 'Moshe')
+            self.assertEqual(res['email'], 'email@moshe.com')
+            self.assertEqual(res['name'], 'Moshe')
 
 
     def test___check___git_works_fine_if_multiple_emails_and_one_exists(self):
@@ -394,15 +394,15 @@ class GetUserProfileTest(unittest.TestCase):
             mock.get('https://api.github.com/user', text=self.mocked_resp)
             mock.get('https://api.github.com/user/emails', text=emails_resp)
             res = self.ctrl._get_user_profile('github', 'access_token')
-            self.assertEquals(res['email'], 'email@newuser.com')
-            self.assertEquals(res['name'], 'Moshe')
+            self.assertEqual(res['email'], 'email@newuser.com')
+            self.assertEqual(res['name'], 'Moshe')
 
 
 class NormalizeProfileTestCase(unittest.TestCase):
 
     def setUp(self):
 
-        self.ctrl = import_module('auth.controllers')
+        self.ctrl = import_module('dgp_oauth2.controllers')
 
         # Cleanup
         self.addCleanup(patch.stopall)
@@ -416,7 +416,7 @@ class NormalizeProfileTestCase(unittest.TestCase):
             'email': 'git_email@moshe.com'
         }
         out = self.ctrl._normilize_profile('github', git_response)
-        self.assertEquals(out['username'], 'NotMoshe')
+        self.assertEqual(out['username'], 'NotMoshe')
 
     def test__normilize_profile_from_google(self):
         google_response = {
@@ -425,7 +425,7 @@ class NormalizeProfileTestCase(unittest.TestCase):
             'email': 'google_email@moshe.com'
         }
         out = self.ctrl._normilize_profile('google', google_response)
-        self.assertEquals(out['username'], 'google_email')
+        self.assertEqual(out['username'], 'google_email')
 
     def test__adds_number_if_username_already_exists(self):
         models.save_user({
@@ -444,14 +444,14 @@ class NormalizeProfileTestCase(unittest.TestCase):
             'email': 'existing_username@moshe.com'
         }
         out = self.ctrl._normilize_profile('google', google_response)
-        self.assertEquals(out['username'], 'existing_username1')
+        self.assertEqual(out['username'], 'existing_username1')
 
 
 class ResolveUsernameTest(unittest.TestCase):
 
     def setUp(self):
 
-        self.ctrl = import_module('auth.controllers')
+        self.ctrl = import_module('dgp_oauth2.controllers')
 
         self.private_key = credentials.private_key
         reload(self.ctrl)
@@ -465,19 +465,19 @@ class ResolveUsernameTest(unittest.TestCase):
         )
         username = 'existing_user'
         ret = self.ctrl.resolve_username(username)
-        self.assertEquals(ret['userid'], 'abc123')
+        self.assertEqual(ret['userid'], 'abc123')
 
     def test___resolve_username___nonexisting_user(self):
         username = 'nonexisting_user'
         ret = self.ctrl.resolve_username(username)
-        self.assertEquals(ret['userid'], None)
+        self.assertEqual(ret['userid'], None)
 
 
 class GetUserProfileByUsernameTest(unittest.TestCase):
 
     def setUp(self):
 
-        self.ctrl = import_module('auth.controllers')
+        self.ctrl = import_module('dgp_oauth2.controllers')
 
         self.private_key = credentials.private_key
         reload(self.ctrl)
@@ -499,15 +499,15 @@ class GetUserProfileByUsernameTest(unittest.TestCase):
 
         username = 'existing_user'
         ret = self.ctrl.get_profile_by_username(username)
-        self.assertEquals(ret['profile']['id'], return_value['id'])
-        self.assertEquals(ret['profile']['name'], return_value['name'])
-        self.assertEquals(ret['profile']['join_date'], return_value['join_date'])
-        self.assertEquals(ret['profile']['avatar_url'], return_value['avatar_url'])
-        self.assertEquals(ret['profile']['gravatar'], models.hash_email(return_value['email']))
-        self.assertEquals(ret['found'], True)
+        self.assertEqual(ret['profile']['id'], return_value['id'])
+        self.assertEqual(ret['profile']['name'], return_value['name'])
+        self.assertEqual(ret['profile']['join_date'], return_value['join_date'])
+        self.assertEqual(ret['profile']['avatar_url'], return_value['avatar_url'])
+        self.assertEqual(ret['profile']['gravatar'], models.hash_email(return_value['email']))
+        self.assertEqual(ret['found'], True)
 
     def test___get_profile_by_username___nonexisting_user(self):
         username = 'nonexisting_user'
         ret = self.ctrl.get_profile_by_username(username)
-        self.assertEquals(ret['profile'], None)
-        self.assertEquals(ret['found'], False)
+        self.assertEqual(ret['profile'], None)
+        self.assertEqual(ret['found'], False)

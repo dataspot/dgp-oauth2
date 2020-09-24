@@ -1,8 +1,10 @@
-# DataHQ auth service
+# Oauth2 Flask Service
 
-[![Build Status](https://travis-ci.org/datahq/auth.svg?branch=master)](https://travis-ci.org/datahq/auth)
+[![Build Status](https://travis-ci.org/datahq/auth.svg?branch=master)](https://travis-ci.org/dataspot/dgp-oauth2)
 
 A generic OAuth2 authentication service and user permission manager.
+
+Based off [OpenSpending auth service](https://github.com/openspending/os-conductor).
 
 ## Quick start
 

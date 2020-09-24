@@ -7,8 +7,8 @@ except ImportError:
     from mock import Mock, patch
 from importlib import import_module
 
-module = import_module('auth.controllers')
-credentials = import_module('auth.credentials')
+module = import_module('dgp_oauth2.controllers')
+credentials = import_module('dgp_oauth2.credentials')
 
 
 class ExtensionsTestCase(unittest.TestCase):
@@ -30,4 +30,4 @@ class ExtensionsTestCase(unittest.TestCase):
         profile = dict(id='test', name='name', email='test@mail.com')
         token = module._get_token_from_profile('test_provider', profile, self.private_key)
         user_profile = jwt.decode(token, self.private_key)
-        self.assertEquals(user_profile.get('userid'), 'new-user')
+        self.assertEqual(user_profile.get('userid'), 'new-user')

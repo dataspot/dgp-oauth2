@@ -5,6 +5,6 @@ flask-jsonpify
 flask-oauthlib
 pyjwt
 sqlalchemy
-psycopg2
+psycopg2-binary
 cryptography
 werkzeug<1

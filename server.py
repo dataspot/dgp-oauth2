@@ -5,7 +5,7 @@ from flask import Flask
 from flask_cors import CORS
 from flask_session import Session
 
-from auth import make_blueprint
+from dgp_oauth2 import make_blueprint
 
 # Create application
 app = Flask(__name__, static_folder=None)

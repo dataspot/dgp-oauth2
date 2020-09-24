@@ -13,8 +13,8 @@ def read(*paths):
     
     
 # Prepare
-PACKAGE = 'auth'
-NAME = 'dhq-auth'
+PACKAGE = 'dgp_oauth2'
+NAME = 'dgp-oauth2'
 INSTALL_REQUIRES = [
     'flask',
     'flask-cors',
@@ -24,7 +24,7 @@ INSTALL_REQUIRES = [
     'pyjwt',
     'sqlalchemy',
     'cryptography',
-    'psycopg2',
+    'psycopg2-binary',
     'requests',
 ]
 TESTS_REQUIRE = [
@@ -55,11 +55,12 @@ setup(
     long_description_content_type='text/markdown',
     description='{{ DESCRIPTION }}',
     author='Adam Kariv, Open Knowledge (International), Datopian',
-    url='https://github.com/datahq/auth',
+    url='https://github.com/dataspot/dgp-oauth2',
     license='MIT',
     keywords=[
         'data',
-        'auth'
+        'authentication',
+        'oauth2'
     ],
     classifiers=[
         'Development Status :: 4 - Beta',
